@@ -17,9 +17,10 @@ namespace KeremetForms
 {
     public partial class FormMain : Form
     {
-        SqlConnection connection;
-        string connectionString;
+        string cs = "Host=localhost;Username=postgres;Password=doomSpawnMk;Database=vstest";
         string[] locations = { "Нарын", "Бишкек", "Исфана", "Каракол", "Комсомольское" };
+        NpgsqlConnection con;
+        NpgsqlCommand scmd;
 
         // Create new Table [Clients]
         string csql = "CREATE TABLE IF NOT EXISTS Clients (" +
@@ -33,19 +34,16 @@ namespace KeremetForms
         public FormMain()
         {
             InitializeComponent();
-            connectionString = ConfigurationManager.ConnectionStrings["KeremetForms.Properties.Settings.KeremetDBConnectionString"].ConnectionString;
-
-            //InitializeDb(connectionString);
+            
             PsqlDbInitialize();
         }
 
         private void PsqlDbInitialize()
         {
-            var cs = "Host=localhost;Username=postgres;Password=doomSpawnMk;Database=vstest";
-            NpgsqlConnection con = new NpgsqlConnection(cs);
+            con = new NpgsqlConnection(cs);
             con.Open();
 
-            NpgsqlCommand scmd = new NpgsqlCommand();
+            scmd = new NpgsqlCommand();
             scmd.Connection = con;
 
             scmd.CommandText = "DROP TABLE IF EXISTS Clients";
@@ -76,16 +74,17 @@ namespace KeremetForms
                 int range = ((TimeSpan)(new DateTime(2000,12,31) - start)).Days;
                 return () => start.AddDays(gen.Next(range));
             }
+
+            con.Close();
         }
         private void btnSearch_Click(object sender, EventArgs e)
         {
             string socNum = txtInput.Text;
 
-            string cs = "Host=localhost;Username=postgres;Password=doomSpawnMk;Database=vstest";
-            NpgsqlConnection con = new NpgsqlConnection(cs);
+            con = new NpgsqlConnection(cs);
             con.Open();
 
-            NpgsqlCommand scmd = new NpgsqlCommand();
+            scmd = new NpgsqlCommand();
             scmd.Connection = con;
 
             scmd.CommandText = $"SELECT * FROM public.clients WHERE socialnumber = '{socNum}'";
@@ -97,67 +96,47 @@ namespace KeremetForms
 
             while (client.Read())
             {
-                foreach (var cell in range)
+                lblFound.Text = $"{client["Name"]}";
+
+                if(lblFound.Text != "")
                 {
-                    if (cell.Value.ToString() == "[Name]")
+                    DialogResult result = MessageBox.Show($"Сохранить клиента {client["Name"]} в файл .xlsx?", "Подтверждение", MessageBoxButtons.YesNo);
+                    if (result == DialogResult.Yes)
                     {
-                        cell.Value = client["Name"].ToString();
+                        foreach (var cell in range)
+                        {
+                            if (cell.Value.ToString() == "[Name]")
+                            {
+                                cell.Value = client["Name"].ToString();
+                            }
+                            else if (cell.Value.ToString() == "[BirthDate]")
+                            {
+                                cell.Value = client["BirthDate"];
+                            }
+                            else if (cell.Value.ToString() == "[SocialNumber]")
+                            {
+                                cell.Value = client["SocialNumber"].ToString();
+                            }
+                            else if (cell.Value.ToString() == "[PhoneNumber]")
+                            {
+                                cell.Value = client["PhoneNumber"].ToString();
+                            }
+                            else if (cell.Value.ToString() == "[Address]")
+                            {
+                                cell.Value = client["Address"].ToString();
+                            }
+                        }
+                        workbook.SaveAs($"D:/coding/C#/KeremetForms/KeremetForms/Result/client_{txtInput.Text}.xlsx");
+                        MessageBox.Show("Клиент успешно сохранен в папке Result.", "status", MessageBoxButtons.OK);
                     }
-                    else if (cell.Value.ToString() == "[BirthDate]")
+                    else
                     {
-                        cell.Value = client["BirthDate"].ToString();
-                    }
-                    else if (cell.Value.ToString() == "[SocialNumber]")
-                    {
-                        cell.Value = client["SocialNumber"].ToString();
-                    }
-                    else if (cell.Value.ToString() == "[PhoneNumber]")
-                    {
-                        cell.Value = client["PhoneNumber"].ToString();
-                    }
-                    else if (cell.Value.ToString() == "[Address]")
-                    {
-                        cell.Value = client["Address"].ToString();
+                        MessageBox.Show("Вы отменили сохранение.", "status", MessageBoxButtons.OK);
                     }
                 }
-            }
 
-            workbook.SaveAs($"D:/coding/C#/KeremetForms/KeremetForms/Result/client_{txtInput.Text}.xlsx")
+            }          
             con.Close();
-        }
-
-        private void InitializeDb(string connectionString)
-        {
-            // Create new Table [Clients]
-            string csql = "CREATE TABLE IF NOT EXISTS Clients (" +
-                            "ID INT PRIMARY KEY, " +
-                            "Name varchar(100) not null, " +
-                            "BirthDate DATE not null, " +
-                            "PhoneNumber varchar(100), " +
-                            "Address varchar(250), " +
-                            "SocialNumber varchar(20) not null);";
-            
-            string tex = "CREATE TABLE IF NOT EXISTS Derevo(ID SERIAL PRIMARY KEY, NAME VARCHAR(100) NOT NULL, BIRTHDATE DATE NOT NULL, PHONENUMBER VARCHAR(100), ADDRESS VARCHAR(250), SOCIALNUMBER VARCHAR(20) NOT NULL);";
-            
-            // Insert some Values to Clients
-            string isql = "insert into Clients(Name, BirthDate, SocialNumber) " +
-                            "values('Mike', '1985-10-11', '@SocialNumber');";
-
-            using (connection = new SqlConnection(connectionString))
-            using (SqlCommand command = new SqlCommand())
-            {
-                connection.Open();
-                command.Connection = connection;
-                command.CommandText = tex;
-                command.ExecuteScalar();
-
-                for (var i = 120245680; i < 120245690; i++)
-                {
-                    command.CommandText = isql;
-                    command.Parameters.AddWithValue("@SocialNumber", i.ToString());
-                    command.ExecuteNonQuery();
-                }
-            }
         }
 
     }
