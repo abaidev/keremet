@@ -54,6 +54,7 @@ namespace KeremetForms
             this.btnSearch.TabIndex = 1;
             this.btnSearch.Text = "Поиск";
             this.btnSearch.UseVisualStyleBackColor = true;
+            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
             // 
             // txtInput
             // 

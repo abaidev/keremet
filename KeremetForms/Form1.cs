@@ -11,6 +11,7 @@ using System.Configuration;
 //using System.Data;
 using System.Data.SqlClient;
 using Npgsql;
+using IronXL;
 
 namespace KeremetForms
 {
@@ -76,6 +77,54 @@ namespace KeremetForms
                 return () => start.AddDays(gen.Next(range));
             }
         }
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            string socNum = txtInput.Text;
+
+            string cs = "Host=localhost;Username=postgres;Password=doomSpawnMk;Database=vstest";
+            NpgsqlConnection con = new NpgsqlConnection(cs);
+            con.Open();
+
+            NpgsqlCommand scmd = new NpgsqlCommand();
+            scmd.Connection = con;
+
+            scmd.CommandText = $"SELECT * FROM public.clients WHERE socialnumber = '{socNum}'";
+            NpgsqlDataReader client = scmd.ExecuteReader();
+
+            var workbook = new WorkBook("D:/coding/C#/KeremetForms/KeremetForms/Template/example.xlsx");
+            var worksheet = workbook.GetWorkSheet("Лист1");
+            var range = worksheet.GetRange("A1:Z20");
+
+            while (client.Read())
+            {
+                foreach (var cell in range)
+                {
+                    if (cell.Value.ToString() == "[Name]")
+                    {
+                        cell.Value = client["Name"].ToString();
+                    }
+                    else if (cell.Value.ToString() == "[BirthDate]")
+                    {
+                        cell.Value = client["BirthDate"].ToString();
+                    }
+                    else if (cell.Value.ToString() == "[SocialNumber]")
+                    {
+                        cell.Value = client["SocialNumber"].ToString();
+                    }
+                    else if (cell.Value.ToString() == "[PhoneNumber]")
+                    {
+                        cell.Value = client["PhoneNumber"].ToString();
+                    }
+                    else if (cell.Value.ToString() == "[Address]")
+                    {
+                        cell.Value = client["Address"].ToString();
+                    }
+                }
+            }
+
+            workbook.SaveAs($"D:/coding/C#/KeremetForms/KeremetForms/Result/client_{txtInput.Text}.xlsx")
+            con.Close();
+        }
 
         private void InitializeDb(string connectionString)
         {
@@ -110,5 +159,6 @@ namespace KeremetForms
                 }
             }
         }
+
     }
 }
