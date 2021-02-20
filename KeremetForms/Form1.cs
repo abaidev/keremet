@@ -1,18 +1,18 @@
 ﻿using System;
-//using System.Collections.Generic;
-//using System.ComponentModel;
-//using System.Data;
-//using System.Drawing;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
+using System.IO;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Configuration;
-//using System.Data;
+using System.Data;
 using System.Data.SqlClient;
 using Npgsql;
 using IronXL;
-using System.IO;
 
 namespace KeremetForms
 {
@@ -92,8 +92,15 @@ namespace KeremetForms
 
             var workbook = new WorkBook(Path.Combine(projPath, "Template/example.xlsx"));
             var worksheet = workbook.GetWorkSheet("Лист1");
-            var range = worksheet.GetRange("A1:Z20");
+            var range = worksheet.GetRange(worksheet.RangeAddressAsString);
+            //var range = worksheet.GetRange($"{worksheet.FilledCells.First().AddressString}:{worksheet.FilledCells.Last().AddressString}");
+            Console.WriteLine("RANGE - - - > > >");
+            Console.WriteLine(worksheet.RangeAddressAsString);
+            //Console.WriteLine(worksheet.Columns.Last().RangeAddress.Location);
 
+            Console.WriteLine("C E L L S - - - > > >");
+            Console.WriteLine(worksheet.FilledCells.First().AddressString);
+            Console.WriteLine(worksheet.FilledCells.Last().AddressString);
             try
             {
                 //scmd.CommandText = $"SELECT * FROM Clients WHERE SocialNumber = '{socNum}'"; // also works fine, but a bit slower
@@ -134,7 +141,7 @@ namespace KeremetForms
                                 cell.Value = client["Address"].ToString();
                             }
                         }
-                        Directory.CreateDirectory($"{projPath}/Result");
+                        Directory.CreateDirectory($"{projPath}/Result"); // create directory if doesn't exist
                         workbook.SaveAs(Path.Combine(projPath, $"Result/client_{txtInput.Text}.xlsx"));
                         MessageBox.Show("Клиент успешно сохранен в папке Result.", "status", MessageBoxButtons.OK);
                     }
