@@ -8,13 +8,16 @@
 
 
 ## Запуск проекта
-Перед запуском проекта необходимо создать переменные среды "DB_HOST" (localhost или 127.0.0.1, если на локальной машине), "DB_USER" и "DB_PASSWORD" и указать их значения для подключения к Серверу базы данных. <br/>
+Перед запуском проекта необходимо создать переменные среды:
+	`"DB_HOST"` (localhost или 127.0.0.1, если на локальной машине), 
+	`"DB_NAME"`, `"DB_USER"` и `"DB_PASSWORD"` 
+и указать их значения для подключения к Серверу базы данных. <br/>
 
 Других действий не требуется. Запуск в обычном режиме (<b>`F5`</b>).
 
 ## Дополнительная информация
-Больше информации о [`PostgreSQL`](https://www.postgresql.org/).
-Для подключения к серверу PostgreSQL использовался [`Data Provider Npgsql`](https://www.postgresql.org/).
-Для работы с Excel документом был выбран [`IronXL`](https://ironsoftware.com/csharp/excel/).
+Больше информации о [`PostgreSQL`](https://www.postgresql.org/).<br/>
+Для подключения к серверу PostgreSQL использовался [`Data Provider Npgsql`](https://www.postgresql.org/).<br/>
+Для работы с Excel документом был выбран [`IronXL`](https://ironsoftware.com/csharp/excel/).<br/>
 
 
