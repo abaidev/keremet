@@ -1,5 +1,3 @@
-D:\coding\C#\KeremetForms\KeremetForms\bin\Debug\KeremetDB.mdf
-D:\coding\C#\KeremetForms\KeremetForms\bin\Debug\KeremetDB_log.ldf
 D:\coding\C#\KeremetForms\KeremetForms\bin\Debug\KeremetForms.exe.config
 D:\coding\C#\KeremetForms\KeremetForms\bin\Debug\KeremetForms.exe
 D:\coding\C#\KeremetForms\KeremetForms\bin\Debug\KeremetForms.pdb
