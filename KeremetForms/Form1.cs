@@ -33,7 +33,7 @@ namespace KeremetForms
                         "SocialNumber varchar(20) not null);";
         
         string projPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
-
+        
         public FormMain()
         {
             InitializeComponent();
@@ -134,6 +134,7 @@ namespace KeremetForms
                                 cell.Value = client["Address"].ToString();
                             }
                         }
+                        Directory.CreateDirectory($"{projPath}/Result");
                         workbook.SaveAs(Path.Combine(projPath, $"Result/client_{txtInput.Text}.xlsx"));
                         MessageBox.Show("Клиент успешно сохранен в папке Result.", "status", MessageBoxButtons.OK);
                     }
