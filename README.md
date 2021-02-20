@@ -17,7 +17,7 @@
 
 ## Дополнительная информация
 Больше информации о [`PostgreSQL`](https://www.postgresql.org/).<br/>
-Для подключения к серверу PostgreSQL использовался [`Data Provider Npgsql`](https://www.postgresql.org/).<br/>
+Для подключения к серверу PostgreSQL использовался [`Data Provider Npgsql`](https://www.npgsql.org/doc/basic-usage.html/).<br/>
 Для работы с Excel документом был выбран [`IronXL`](https://ironsoftware.com/csharp/excel/).<br/>
 
 
