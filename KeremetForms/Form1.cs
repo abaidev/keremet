@@ -12,6 +12,7 @@ using System.Configuration;
 using System.Data.SqlClient;
 using Npgsql;
 using IronXL;
+using System.IO;
 
 namespace KeremetForms
 {
@@ -30,6 +31,8 @@ namespace KeremetForms
                         "PhoneNumber varchar(100), " +
                         "Address varchar(250), " +
                         "SocialNumber varchar(20) not null);";
+        
+        string projPath = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
 
         public FormMain()
         {
@@ -87,7 +90,7 @@ namespace KeremetForms
             scmd = new NpgsqlCommand();
             scmd.Connection = con;
 
-            var workbook = new WorkBook("D:/coding/C#/KeremetForms/KeremetForms/Template/example.xlsx");
+            var workbook = new WorkBook(Path.Combine(projPath, "Template/example.xlsx"));
             var worksheet = workbook.GetWorkSheet("Лист1");
             var range = worksheet.GetRange("A1:Z20");
 
@@ -131,7 +134,7 @@ namespace KeremetForms
                                 cell.Value = client["Address"].ToString();
                             }
                         }
-                        workbook.SaveAs($"D:/coding/C#/KeremetForms/KeremetForms/Result/client_{txtInput.Text}.xlsx");
+                        workbook.SaveAs(Path.Combine(projPath, $"Result/client_{txtInput.Text}.xlsx"));
                         MessageBox.Show("Клиент успешно сохранен в папке Result.", "status", MessageBoxButtons.OK);
                     }
                     else
