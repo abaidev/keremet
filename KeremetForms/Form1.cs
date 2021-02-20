@@ -15,7 +15,10 @@ namespace KeremetForms
 {
     public partial class FormMain : Form
     {
-        string cs = "Host=localhost;Username=postgres;Password=doomSpawnMk;Database=vstest";
+        static string user = Environment.GetEnvironmentVariable("DB_USER");
+        static string db_password = Environment.GetEnvironmentVariable("DB_PASSWORD");
+        static string db_name = Environment.GetEnvironmentVariable("DB_KEREMET");
+        string cs = $"Host=localhost;Username={user};Password={db_password};Database={db_name}";
         string[] locations = { "Нарын", "Бишкек", "Исфана", "Каракол", "Комсомольское", "Кант", "Токмок", "Буденовка", "Ош" };
         NpgsqlConnection con;
         NpgsqlCommand scmd;
@@ -77,6 +80,7 @@ namespace KeremetForms
 
             con.Close();
         }
+
         private void btnSearch_Click(object sender, EventArgs e)
         {
             string socNum = txtInput.Text;
