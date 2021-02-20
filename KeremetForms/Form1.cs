@@ -18,7 +18,8 @@ namespace KeremetForms
         static string user = Environment.GetEnvironmentVariable("DB_USER");
         static string db_password = Environment.GetEnvironmentVariable("DB_PASSWORD");
         static string db_name = Environment.GetEnvironmentVariable("DB_KEREMET");
-        string cs = $"Host=localhost;Username={user};Password={db_password};Database={db_name}";
+        static string db_host = Environment.GetEnvironmentVariable("DB_HOST");
+        string cs = $"Host={db_host};Username={user};Password={db_password};Database={db_name}";
         string[] locations = { "Нарын", "Бишкек", "Исфана", "Каракол", "Комсомольское", "Кант", "Токмок", "Буденовка", "Ош" };
         NpgsqlConnection con;
         NpgsqlCommand scmd;
