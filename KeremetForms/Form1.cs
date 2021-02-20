@@ -8,9 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Configuration;
-using System.Data;
-using System.Data.SqlClient;
 using Npgsql;
 using IronXL;
 
@@ -19,7 +16,7 @@ namespace KeremetForms
     public partial class FormMain : Form
     {
         string cs = "Host=localhost;Username=postgres;Password=doomSpawnMk;Database=vstest";
-        string[] locations = { "Нарын", "Бишкек", "Исфана", "Каракол", "Комсомольское" };
+        string[] locations = { "Нарын", "Бишкек", "Исфана", "Каракол", "Комсомольское", "Кант", "Токмок", "Буденовка", "Ош" };
         NpgsqlConnection con;
         NpgsqlCommand scmd;
 
@@ -63,7 +60,7 @@ namespace KeremetForms
                 string birtdate = $"'{rd().Year}-{rd().Month}-{rd().Day}'";
                 string phone = $"'{rand.Next(100, 790)}'";
                 string socialnumber = $"'{12345678901234 + i}'";
-                string address = $"'{locations[rand.Next(locations.Length)]}'";
+                string address = $"'{locations[rand.Next(locations.Length-1)]}'";
 
                 scmd.CommandText = "insert into Clients (Name, BirthDate, SocialNumber, PhoneNumber, Address) " +
                         $"values('Customer-{i}', {birtdate}, {socialnumber}, {phone}, {address});";
@@ -93,17 +90,10 @@ namespace KeremetForms
             var workbook = new WorkBook(Path.Combine(projPath, "Template/example.xlsx"));
             var worksheet = workbook.GetWorkSheet("Лист1");
             var range = worksheet.GetRange(worksheet.RangeAddressAsString);
-            //var range = worksheet.GetRange($"{worksheet.FilledCells.First().AddressString}:{worksheet.FilledCells.Last().AddressString}");
-            Console.WriteLine("RANGE - - - > > >");
-            Console.WriteLine(worksheet.RangeAddressAsString);
-            //Console.WriteLine(worksheet.Columns.Last().RangeAddress.Location);
 
-            Console.WriteLine("C E L L S - - - > > >");
-            Console.WriteLine(worksheet.FilledCells.First().AddressString);
-            Console.WriteLine(worksheet.FilledCells.Last().AddressString);
             try
             {
-                //scmd.CommandText = $"SELECT * FROM Clients WHERE SocialNumber = '{socNum}'"; // also works fine, but a bit slower
+                //scmd.CommandText = $"SELECT * FROM Clients WHERE SocialNumber = '{socNum}'"; // this also works fine, but a bit slower
                 scmd.CommandText = $"SELECT * FROM public.clients WHERE socialnumber = '{socNum}'"; // with this finds very quickly. i guess because of PG
                 NpgsqlDataReader client = scmd.ExecuteReader();
 
@@ -116,34 +106,33 @@ namespace KeremetForms
                     {
                         foreach (var cell in range)
                         {
-                            if (cell.Value.ToString() == "[ID]")
+                            switch (cell.Value.ToString())
                             {
-                                cell.Value = client["Id"].ToString();
-                            }
-                            if (cell.Value.ToString() == "[Name]")
-                            {
-                                cell.Value = client["Name"].ToString();
-                            }
-                            else if (cell.Value.ToString() == "[BirthDate]")
-                            {
-                                cell.Value = String.Format("{0:dd-MM-yyyy}", client["BirthDate"]); ;
-                            }
-                            else if (cell.Value.ToString() == "[SocialNumber]")
-                            {
-                                cell.Value = client["SocialNumber"].ToString();
-                            }
-                            else if (cell.Value.ToString() == "[PhoneNumber]")
-                            {
-                                cell.Value = client["PhoneNumber"].ToString();
-                            }
-                            else if (cell.Value.ToString() == "[Address]")
-                            {
-                                cell.Value = client["Address"].ToString();
+                                case "[ID]":
+                                    cell.Value = client["Id"].ToString();
+                                    break;
+                                case "[Name]":
+                                    cell.Value = client["Name"].ToString();
+                                    break;
+                                case "[BirthDate]":
+                                    cell.Value = String.Format("{0:dd-MM-yyyy}", client["BirthDate"]);
+                                    break;
+                                case "[SocialNumber]":
+                                    cell.Value = client["SocialNumber"].ToString();
+                                    break;
+                                case "[PhoneNumber]":
+                                    cell.Value = client["PhoneNumber"].ToString();
+                                    break;
+                                case "[Address]":
+                                    cell.Value = client["Address"].ToString();
+                                    break;
+                                default:
+                                    break;
                             }
                         }
                         Directory.CreateDirectory($"{projPath}/Result"); // create directory if doesn't exist
                         workbook.SaveAs(Path.Combine(projPath, $"Result/client_{txtInput.Text}.xlsx"));
-                        MessageBox.Show("Клиент успешно сохранен в папке Result.", "status", MessageBoxButtons.OK);
+                        MessageBox.Show("Клиент успешно сохранен в папке Result.", "Статус", MessageBoxButtons.OK);
                     }
                     else
                     {
