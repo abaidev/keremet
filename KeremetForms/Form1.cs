@@ -71,8 +71,8 @@ namespace KeremetForms
             {
                 DateTime start = new DateTime(1995, 1, 1);
                 Random gen = new Random();
-                int range = ((TimeSpan)(new DateTime(2000,12,31) - start)).Days;
-                return () => start.AddDays(gen.Next(range));
+                int range = ((TimeSpan)(new DateTime(2000, 12, 31) - start)).Days;
+                return () => start.AddDays(gen.Next(range - 10));
             }
 
             con.Close();
@@ -87,31 +87,36 @@ namespace KeremetForms
             scmd = new NpgsqlCommand();
             scmd.Connection = con;
 
-            scmd.CommandText = $"SELECT * FROM public.clients WHERE socialnumber = '{socNum}'";
-            NpgsqlDataReader client = scmd.ExecuteReader();
-
             var workbook = new WorkBook("D:/coding/C#/KeremetForms/KeremetForms/Template/example.xlsx");
             var worksheet = workbook.GetWorkSheet("Лист1");
             var range = worksheet.GetRange("A1:Z20");
 
-            while (client.Read())
+            try
             {
-                lblFound.Text = $"{client["Name"]}";
+                //scmd.CommandText = $"SELECT * FROM Clients WHERE SocialNumber = '{socNum}'"; // also works fine, but a bit slower
+                scmd.CommandText = $"SELECT * FROM public.clients WHERE socialnumber = '{socNum}'"; // with this finds very quickly. i guess because of PG
+                NpgsqlDataReader client = scmd.ExecuteReader();
 
-                if(lblFound.Text != "")
+                if (client.Read())
                 {
+                    lblFound.Text = $"{client["Name"]}";
+                    
                     DialogResult result = MessageBox.Show($"Сохранить клиента {client["Name"]} в файл .xlsx?", "Подтверждение", MessageBoxButtons.YesNo);
                     if (result == DialogResult.Yes)
                     {
                         foreach (var cell in range)
                         {
+                            if (cell.Value.ToString() == "[ID]")
+                            {
+                                cell.Value = client["Id"].ToString();
+                            }
                             if (cell.Value.ToString() == "[Name]")
                             {
                                 cell.Value = client["Name"].ToString();
                             }
                             else if (cell.Value.ToString() == "[BirthDate]")
                             {
-                                cell.Value = client["BirthDate"];
+                                cell.Value = String.Format("{0:dd-MM-yyyy}", client["BirthDate"]); ;
                             }
                             else if (cell.Value.ToString() == "[SocialNumber]")
                             {
@@ -134,8 +139,16 @@ namespace KeremetForms
                         MessageBox.Show("Вы отменили сохранение.", "status", MessageBoxButtons.OK);
                     }
                 }
-
-            }          
+                else
+                {
+                    lblFound.Text = "отсутствует";
+                    MessageBox.Show("Неверный ИНН. Попробуйте еще раз");
+                }
+            }
+            catch(Exception exc)
+            {
+                MessageBox.Show(exc.Message);
+            }                    
             con.Close();
         }
 
